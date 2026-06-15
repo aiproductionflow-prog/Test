@@ -4,6 +4,7 @@ import { useState } from "react";
 import InputForm from "@/components/InputForm";
 import FollowUpForm from "@/components/FollowUpForm";
 import VerdictScreen from "@/components/VerdictScreen";
+import type { VerdictResponse } from "@/app/api/verdict/route";
 
 export type InputData = {
   productName: string;
@@ -31,11 +32,13 @@ export default function Home() {
     mainUse: "",
     lowestPrice: "",
   });
+  const [verdictResult, setVerdictResult] = useState<VerdictResponse | null>(null);
 
   const handleReset = () => {
     setStep("input");
     setInputData({ productName: "", price: "", whereToBuy: "" });
     setFollowUpData({ urgency: "", mainUse: "", lowestPrice: "" });
+    setVerdictResult(null);
   };
 
   return (
@@ -68,14 +71,18 @@ export default function Home() {
             {step === "followup" && (
               <FollowUpForm
                 data={followUpData}
+                inputData={inputData}
                 onChange={setFollowUpData}
-                onNext={() => setStep("verdict")}
+                onVerdictReady={(result) => {
+                  setVerdictResult(result);
+                  setStep("verdict");
+                }}
               />
             )}
             {step === "verdict" && (
               <VerdictScreen
                 inputData={inputData}
-                followUpData={followUpData}
+                verdictResult={verdictResult}
                 onReset={handleReset}
               />
             )}
